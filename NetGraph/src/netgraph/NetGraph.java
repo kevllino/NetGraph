@@ -38,5 +38,6 @@ private JTextArea jta = new JTextArea();
  setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
  setVisible(true); // It is necessary to show the frame here!
  System.out.println("Fenetre crée!");
+ //Bonjour Kevin ça va ?
     }
 }

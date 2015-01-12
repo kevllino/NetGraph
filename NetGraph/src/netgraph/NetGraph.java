@@ -35,7 +35,8 @@ private JTextArea jta = new JTextArea();
 
  setTitle("IP");
  setSize(500, 300);
- setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+ setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
  setVisible(true); // It is necessary to show the frame here!
+ System.out.println("Fenetre crée!");
     }
 }

@@ -39,5 +39,6 @@ private JTextArea jta = new JTextArea();
  setVisible(true); // It is necessary to show the frame here!
  System.out.println("Fenetre crée!");
  //Bonjour Kevin ça va ?
+ //Voici une autre modif gars
     }
 }

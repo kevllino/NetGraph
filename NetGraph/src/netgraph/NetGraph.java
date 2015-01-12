@@ -40,5 +40,6 @@ private JTextArea jta = new JTextArea();
  System.out.println("Fenetre crée!");
  //Bonjour Kevin ça va ?
  //Voici une autre modif gars
+ //Encore une autre 
     }
 }

@@ -78,12 +78,14 @@ public class NetGraph extends JFrame {
           
                 IP = tZone.getText().trim();
                 System.out.println(IP);
+                String cmdprevious = cmd;
                 cmd += " " + IP;
-
+               
                 Runtime rt = Runtime.getRuntime();
-
+                 
+                 System.out.println(cmd);
                 Process proc = rt.exec(cmd);
-
+                cmd = cmdprevious;
                 BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
                
                 //parse output 
@@ -173,7 +175,8 @@ public class NetGraph extends JFrame {
           
         tree = new JTree(top);
         JScrollPane treeView = new JScrollPane(tree);
-        windows.setLayout(new BorderLayout());
+        //windows.setLayout(new BorderLayout());
+        //panel2.setSize(300,200);
         panel2.setSize(300,200);
         panel2.add(treeView);
         

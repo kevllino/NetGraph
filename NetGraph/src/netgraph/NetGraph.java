@@ -39,7 +39,7 @@ public class NetGraph extends JFrame {
     // Text area to display contents
     private JPanel jta = new JPanel();
     private String IP;
-    private String cmd = "java -jar C:\\Users\\Armand\\Documents\\NetBeansProjects\\NetGraph1\\NetGraph\\fakeroute.jar  ";
+    private String cmd = "java -jar C:\\Users\\Kevin\\Downloads\\NewStudd\\fakeroute.jar  ";
     private String rootNode;
 
     public NetGraph() {

@@ -22,30 +22,38 @@ import netgraph.NetGraph;
 
 public class NetGraph extends JFrame {
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        new NetGraph();
-    }
-    private static final String IPADDRESS_PATTERN =
+//global private variables and constants
+//regex to match IP addresses
+ private static final String IPADDRESS_PATTERN =
 "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
 "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
 "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
 "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+//number of element in an IP address
+private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
+
     private JTree tree;
     private JTextField tZone = new JTextField();
+    private JButton randomIP = new JButton("Random IP Generator");
     // Text area to display contents
     private JPanel jta = new JPanel();
-    private String IP;
-    private String cmd = "java -jar C:\\Users\\Kevin\\Downloads\\NewStudd\\fakeroute.jar  ";
+    private String IP = "";
+    //command to get a tracert output
+    private String cmd = "java -jar C:\\Users\\Kevin\\Downloads\\fakeroute.jar  ";
     private String rootNode;
 
+    //main function where we call the graph constructor
+    public static void main(String[] args) {
+        // TODO code application logic here
+        new NetGraph();
+    }
+    
     public NetGraph() {
 
      
         // create GUI to enter IP and dispslay the graph
+        
+        //create IP area
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout());
         p.add(new JLabel("Enter IP or DN: "), BorderLayout.WEST);
@@ -53,18 +61,60 @@ public class NetGraph extends JFrame {
         tZone.setHorizontalAlignment(JTextField.LEFT);
         setLayout(new BorderLayout());
         add(p, BorderLayout.NORTH);
-        //jta.add(treeView);
         add(jta, BorderLayout.CENTER);
-
-        tZone.addActionListener(new TextFieldListener());
+        
+        //add the IP random generator option
+        p.add(randomIP, BorderLayout.SOUTH);
+        
+        //register listeners
+        tZone.addActionListener(new NetGraph.TextFieldListener());
+        randomIP.addActionListener(new NetGraph.ButtonFieldListener());
 
         setTitle("Chemin IP");
         setSize(300, 90);
 
         setVisible(true); // It is necessary to show the frame here!
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        System.out.println("Fenetre crée!");
+       
 
+    }
+    //create the Random IP generator listener to generate random IP adresses.
+    private class ButtonFieldListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e){
+            try{
+                //create random IP 
+                int[] elements = new int[NUMBER_OF_ELEMENTS_IN_IP];
+                for(int k =0; k<NUMBER_OF_ELEMENTS_IN_IP - 1; k++){
+                    elements[k] = (int) (255*Math.random());
+                       //concatenate the numbers to get the final IP
+                    IP += elements[k] + ".";
+                }
+                //add the last element to avoid getting "." at the end of the IP 
+                elements[NUMBER_OF_ELEMENTS_IN_IP-1] = (int) (255*Math.random());
+                IP +=   elements[NUMBER_OF_ELEMENTS_IN_IP-1];
+                System.out.println("RANDOM IP IS: "+ IP);
+                
+                //trace the graph
+                String cmdprevious = cmd;
+                cmd += " " + IP;
+
+                Runtime rt = Runtime.getRuntime();
+
+                Process proc = rt.exec(cmd);
+                cmd = cmdprevious;
+
+                BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+               
+                //parse output 
+                String[] check = parseOutput(stdInput);
+
+            }
+            catch(Exception ex){
+                System.err.println(ex);
+            }
+        }
+        
     }
 
     //create the TEextListener to launch/execute the tracert command
@@ -80,19 +130,17 @@ public class NetGraph extends JFrame {
                 System.out.println(IP);
                 String cmdprevious = cmd;
                 cmd += " " + IP;
-               
+
                 Runtime rt = Runtime.getRuntime();
-                 
-                 System.out.println(cmd);
+
                 Process proc = rt.exec(cmd);
                 cmd = cmdprevious;
+
                 BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
                
                 //parse output 
                 String[] check = parseOutput(stdInput);
 
-                // read the output from the command
-                System.out.println("Here is the standard output of the command:\n");
                 String s = null;
                 while ((s = stdInput.readLine()) != null) {
                     System.out.println(s);
@@ -111,33 +159,6 @@ public class NetGraph extends JFrame {
         category = new DefaultMutableTreeNode(newNode);
         top.add(category);
 
-       /* //original Tutorial
-        book = new DefaultMutableTreeNode("The Java Tutorial: A Short Course on the Basics");
-
-        category.add(book);
-
-        //Tutorial Continued
-        book = new DefaultMutableTreeNode("The Java Tutorial Continued: The Rest of the JDK");
-        category.add(book);
-
-        //Swing Tutorial
-        book = new DefaultMutableTreeNode("The Swing Tutorial: A Guide to Constructing GUIs");
-
-        category.add(book);
-
-        //...add more books for programmers...
-        category = new DefaultMutableTreeNode("Books for Java Implementers");
-        top.add(category);
-
-        //VM
-        book = new DefaultMutableTreeNode("The Java Virtual Machine Specification");
-
-        category.add(book);
-
-        //Language Spec
-        book = new DefaultMutableTreeNode("The Java Language Specification");
-
-        category.add(book);*/
     }
 
     public String[] parseOutput(BufferedReader stdInput) {
@@ -146,7 +167,7 @@ public class NetGraph extends JFrame {
         String s, s1 = null;
         String[] tokens = null;
         rootNode = tZone.getText();
-        System.out.println("Racine : "+rootNode);
+        System.out.println("Root Node : "+rootNode);
         DefaultMutableTreeNode top = new DefaultMutableTreeNode(rootNode);
         try {
             //read each line
@@ -156,13 +177,13 @@ public class NetGraph extends JFrame {
                 for (int i = 0; i < tokens.length; i++) {
                     //System.out.print(tokens[i] + " ");
                     
-                    //[0-9]*{1,3}\\.[0-9]*{1,3}\\.[0-9]*{1,3}\\.[0-9]*{1,3}
+                   
                     if (tokens[i].matches(IPADDRESS_PATTERN)) {
                         IP = tokens[i];
                         System.out.println("IP : "+IP);
                         createNodes(top,IP);
 
-                    } else { /*System.out.println("Erreur!");*/}
+                    } else {/* System.out.println("Erreur!");*/}
 
                 }
             }
@@ -171,12 +192,10 @@ public class NetGraph extends JFrame {
         
         JPanel panel2 = new JPanel();
         
-        //top.add(new DefaultMutableTreeNode("Bonjour"));
           
         tree = new JTree(top);
         JScrollPane treeView = new JScrollPane(tree);
-        //windows.setLayout(new BorderLayout());
-        //panel2.setSize(300,200);
+        windows.setLayout(new BorderLayout());
         panel2.setSize(300,200);
         panel2.add(treeView);
         
@@ -186,7 +205,6 @@ public class NetGraph extends JFrame {
 
         windows.setVisible(true); // It is necessary to show the frame here!
         windows.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        System.out.println("Fenetre crée!");
 
         } catch (Exception e) {
             System.err.println(e);

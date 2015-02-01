@@ -31,16 +31,21 @@ public class NetGraph extends JFrame {
 "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 //number of element in an IP address
 private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
-
+      
     private JTree tree;
     private JTextField tZone = new JTextField();
     private JButton randomIP = new JButton("Random IP Generator");
+    private JButton exitButton = new JButton("Exit");
     // Text area to display contents
     private JPanel jta = new JPanel();
     private String IP = "";
     //command to get a tracert output
     private String cmd = "java -jar C:\\Users\\Kevin\\Downloads\\fakeroute.jar  ";
     private String rootNode;
+    //add IPs  to:
+    private JFrame windows = new JFrame();   
+    private JPanel panel2 = new JPanel();
+   
 
     //main function where we call the graph constructor
     public static void main(String[] args) {
@@ -64,14 +69,15 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         add(jta, BorderLayout.CENTER);
         
         //add the IP random generator option
-        p.add(randomIP, BorderLayout.SOUTH);
-        
+        p.add(randomIP, BorderLayout.NORTH);
+        p.add(exitButton,BorderLayout.SOUTH); 
         //register listeners
         tZone.addActionListener(new NetGraph.TextFieldListener());
         randomIP.addActionListener(new NetGraph.ButtonFieldListener());
-
-        setTitle("Chemin IP");
-        setSize(300, 90);
+        exitButton.addActionListener(new NetGraph.ExitFieldListener());
+        
+        setTitle("IP Trace");
+        setSize(300, 110);
 
         setVisible(true); // It is necessary to show the frame here!
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -153,6 +159,20 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         }
 
     }
+     //create the Random IP generator listener to generate random IP adresses.
+    private class ExitFieldListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e){
+            try{
+                 System.exit(0);
+
+            }
+            catch(Exception ex){
+                System.err.println(ex);
+            }
+        }
+        
+    }
 
     private void createNodes(DefaultMutableTreeNode top,String newNode) {
         DefaultMutableTreeNode category = null;
@@ -187,10 +207,8 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
 
                 }
             }
-            
-            JFrame windows = new JFrame();        
-        
-        JPanel panel2 = new JPanel();
+         
+         
         
           
         tree = new JTree(top);
@@ -201,11 +219,12 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         
         windows.add(panel2, BorderLayout.CENTER);
        
-        windows.setSize(300, 200);
-
+        windows.setSize(1000, 500);
+        //windows.setSize(600, 450);
+        windows.setTitle("Several IP traces");
         windows.setVisible(true); // It is necessary to show the frame here!
         windows.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+        
         } catch (Exception e) {
             System.err.println(e);
             e.printStackTrace();

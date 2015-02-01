@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import netgraph.NetGraph;
+import javax.swing.JProgressBar;
 
 public class NetGraph extends JFrame {
 
@@ -46,7 +47,8 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
     //add IPs  to:
     private JFrame windows = new JFrame();   
     private JPanel panel2 = new JPanel();
-   
+    private int progressValue = 0;
+    JProgressBar progressBar = new JProgressBar(0,100);
 
     //main function where we call the graph constructor
     public static void main(String[] args) {
@@ -57,6 +59,9 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
     //create a frame with gridlayout
     public class ShowGridLayout extends JFrame {
         public ShowGridLayout() {
+            
+            //set progress bar value
+            progressBar.setValue(progressValue);
 // Set GridLayout, 4 rows, 1 columns, and gaps 5 between
  // components horizontally and vertically
       
@@ -117,6 +122,8 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
                 //add the last element to avoid getting "." at the end of the IP 
                 elements[NUMBER_OF_ELEMENTS_IN_IP-1] = (int) (255*Math.random());
                 IP +=   elements[NUMBER_OF_ELEMENTS_IN_IP-1];
+                
+                //test if IP was correctly generated
                 System.out.println("RANDOM IP IS: "+ IP);
                 
                 //trace the graph
@@ -126,8 +133,13 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
                 Runtime rt = Runtime.getRuntime();
 
                 Process proc = rt.exec(cmd);
+                //clear the IP, set IP to a blank value in order to get other IP traces
+                IP = "";
                 cmd = cmdprevious;
-
+                //increase progress bar value 
+                progressValue +=5;
+               progressBar.setValue(progressValue);
+                
                 BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
                
                 //parse output 
@@ -159,7 +171,9 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
 
                 Process proc = rt.exec(cmd);
                 cmd = cmdprevious;
-
+                  //increase progress bar value 
+                progressValue +=5;
+                 progressBar.setValue(progressValue);
                 BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
                
                 //parse output 
@@ -236,7 +250,7 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         panel2.add(treeView);
         
         windows.add(panel2, BorderLayout.CENTER);
-       
+       windows.add(progressBar,BorderLayout.SOUTH);
         windows.setSize(1000, 500);
         //windows.setSize(600, 450);
         windows.setTitle("Several IP traces");

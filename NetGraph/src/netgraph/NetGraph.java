@@ -34,6 +34,7 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
       
     private JTree tree;
     private JTextField tZone = new JTextField();
+    private JLabel label = new JLabel("Enter IP or Domain Name: ");
     private JButton randomIP = new JButton("Random IP Generator");
     private JButton exitButton = new JButton("Exit");
     // Text area to display contents
@@ -53,34 +54,51 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         new NetGraph();
     }
     
+    //create a frame with gridlayout
+    public class ShowGridLayout extends JFrame {
+        public ShowGridLayout() {
+// Set GridLayout, 4 rows, 1 columns, and gaps 5 between
+ // components horizontally and vertically
+      
+ setLayout(new GridLayout(4, 1, 5, 5));
+
+// Add labels and text fields to the frame
+   
+        add(label);
+        add(tZone);
+
+        add(randomIP);
+        add(exitButton);
+         //register listeners
+         tZone.addActionListener(new NetGraph.TextFieldListener());
+        randomIP.addActionListener(new NetGraph.ButtonFieldListener());
+        exitButton.addActionListener(new NetGraph.ExitFieldListener());
+}
+    }
     public NetGraph() {
 
-     
+       
         // create GUI to enter IP and dispslay the graph
-        
-        //create IP area
-        JPanel p = new JPanel();
-        p.setLayout(new BorderLayout());
-        p.add(new JLabel("Enter IP or DN: "), BorderLayout.WEST);
+        ShowGridLayout p = new ShowGridLayout();
+        p.setLocationRelativeTo(null);//center frame
+
+        //p.setLayout(new BorderLayout());
+       /* p.add(new JLabel("Enter IP or DN: "), BorderLayout.WEST);
         p.add(tZone, BorderLayout.CENTER);
         tZone.setHorizontalAlignment(JTextField.LEFT);
         setLayout(new BorderLayout());
         add(p, BorderLayout.NORTH);
-        add(jta, BorderLayout.CENTER);
+        add(jta, BorderLayout.CENTER);*/
         
         //add the IP random generator option
-        p.add(randomIP, BorderLayout.NORTH);
-        p.add(exitButton,BorderLayout.SOUTH); 
-        //register listeners
-        tZone.addActionListener(new NetGraph.TextFieldListener());
-        randomIP.addActionListener(new NetGraph.ButtonFieldListener());
-        exitButton.addActionListener(new NetGraph.ExitFieldListener());
+        //p.add(randomIP, BorderLayout.NORTH);
+        //p.add(exitButton,BorderLayout.SOUTH); 
         
-        setTitle("IP Trace");
-        setSize(300, 110);
+        p.setTitle("IP Trace");
+        p.setSize(300, 200);
 
-        setVisible(true); // It is necessary to show the frame here!
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        p.setVisible(true); // It is necessary to show the frame here!
+        p.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        
 
     }

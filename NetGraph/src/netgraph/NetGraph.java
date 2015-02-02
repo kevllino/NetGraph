@@ -3,7 +3,6 @@
  * and open the template in the editor.
  */
 package netgraph;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -18,10 +17,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
-//import javax.swing.tree.NetNode;
 import netgraph.NetGraph;
 import javax.swing.JProgressBar;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public class NetGraph extends JFrame {
 
@@ -34,33 +33,62 @@ public class NetGraph extends JFrame {
 "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 //number of element in an IP address
 private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
+
     private static int number_tree = 0 ; 
     private static int previous_length = 0 ;
-    private static ArrayList<NetNode> tab = new ArrayList<NetNode>();       
+    private static ArrayList<DefaultMutableTreeNode> tab = new ArrayList<DefaultMutableTreeNode>();       
     private JTree tree;
     private JTextField tZone = new JTextField();
-    private JLabel label = new JLabel("Enter IP or Domain Name: ");
+    private JTextField tZone1 = new JTextField();
+    private JTextField tZone2 = new JTextField();
+    private JLabel enter = new JLabel("Enter IP or DN: ");
     private JButton randomIP = new JButton("Random IP Generator");
+    private JLabel winIP = new JLabel("Tracert");
+    private JLabel linuxIP = new JLabel("Traceroute");
     private JButton exitButton = new JButton("Exit");
     // Text area to display contents
     private JPanel jta = new JPanel();
     private String IP = "";
     //command to get a tracert output
-    private String cmd = "java -jar C:\\Users\\Armand\\Documents\\NetBeansProjects\\NetGraph1\\NetGraph\\fakeroute.jar  ";
+    private String cmd = "java -jar C:\\Users\\Kevin\\Downloads\\fakeroute.jar  ";
+    private String cmdWindows = "tracert -d ";
+    private String cmdLinux = "traceroute -n ";
     //private String cmd = "tracert -d";
     private String rootNode;
-    //add IPs  to:
+   JProgressBar progressBar = new JProgressBar(0,100);
+   protected int progressValue = 0;
     private JFrame windows = new JFrame();   
     private JPanel panel2 = new JPanel();
-    private int progressValue = 0;
-    JProgressBar progressBar = new JProgressBar(0,100);
-    DefaultTreeModel treeModel = new DefaultTreeModel(null);
+    
+    private DefaultTreeModel treeModel = new DefaultTreeModel(null);
+  
+
+         private JPanel panel1 = new JPanel(new GridLayout(3,2,5,5));
+         private JPanel panel3 = new JPanel(new GridLayout(2,1,5,5));
 
     //main function where we call the graph constructor
     public static void main(String[] args) {
         // TODO code application logic here
         NetGraph test = new NetGraph();
         
+    }
+     //grow the JTree by adding the children (IPs)
+       public void GrowTree(){
+        tree = new JTree(treeModel);
+        JScrollPane treeView = new JScrollPane(tree);
+        treeView.setPreferredSize( new Dimension(500,500));
+        windows.setLayout(new BorderLayout());
+        panel2.setSize(300,200);
+        panel2.add(treeView);
+        
+        windows.add(panel2, BorderLayout.CENTER);
+       windows.add(progressBar,BorderLayout.SOUTH);
+        windows.setSize(1000, 500);
+        //windows.setSize(600, 450);
+        windows.setTitle("Several IP traces");
+        windows.setVisible(true); // It is necessary to show the frame here!
+        windows.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        number_tree ++;
     }
     
     //create a frame with gridlayout
@@ -72,39 +100,37 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
 // Set GridLayout, 4 rows, 1 columns, and gaps 5 between
  // components horizontally and vertically
       
- setLayout(new GridLayout(4, 1, 5, 5));
+ setLayout(new GridLayout(2, 1, 5, 5));
 
 // Add labels and text fields to the frame
-   
-        add(label);
-        add(tZone);
-
-        add(randomIP);
-        add(exitButton);
+            
+           panel1.add(enter);
+            panel1.add(tZone);
+            panel1.add(winIP);
+            panel1.add(tZone1);
+            panel1.add(linuxIP);
+            panel1.add(tZone2);
+            panel3.add(randomIP);
+           panel3.add(exitButton);
+           
+           add(panel1);
+           add(panel3);
          //register listeners
-         tZone.addActionListener(new NetGraph.TextFieldListener());
+        tZone.addActionListener(new NetGraph.TextFieldListener());
         randomIP.addActionListener(new NetGraph.ButtonFieldListener());
+        tZone1.addActionListener(new NetGraph.TextFieldWinListener());
+        tZone2.addActionListener(new NetGraph.TextFieldLinuxListener());
         exitButton.addActionListener(new NetGraph.ExitFieldListener());
+        
 }
     }
     public NetGraph() {
 
        
         // create GUI to enter IP and dispslay the graph
-        ShowGridLayout p = new ShowGridLayout();
+        NetGraph.ShowGridLayout p = new NetGraph.ShowGridLayout();
         p.setLocationRelativeTo(null);//center frame
 
-        //p.setLayout(new BorderLayout());
-       /* p.add(new JLabel("Enter IP or DN: "), BorderLayout.WEST);
-        p.add(tZone, BorderLayout.CENTER);
-        tZone.setHorizontalAlignment(JTextField.LEFT);
-        setLayout(new BorderLayout());
-        add(p, BorderLayout.NORTH);
-        add(jta, BorderLayout.CENTER);*/
-        
-        //add the IP random generator option
-        //p.add(randomIP, BorderLayout.NORTH);
-        //p.add(exitButton,BorderLayout.SOUTH); 
         
         p.setTitle("IP Trace");
         p.setSize(300, 200);
@@ -114,6 +140,52 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
        
 
     }
+    //create the Random IP generator listener to generate random IP adresses from tracert
+    private class TextFieldWinListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e){
+            try{
+              
+                
+                IP = tZone2.getText().trim();
+                System.out.println(IP);
+                //trace the graph
+                String cmdprevious = cmdWindows;
+                cmdWindows += " " + IP;
+                
+                Runtime rt = Runtime.getRuntime();
+
+                Process proc = rt.exec(cmdWindows);
+                //clear the IP, set IP to a blank value in order to get other IP traces
+                IP = "";
+                cmdWindows = cmdprevious;
+                //increase progress bar value 
+                progressValue +=5;
+               progressBar.setValue(progressValue);
+                
+                BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+               
+                //parse output 
+                String[] check = parseOutput(stdInput);
+                
+                if(number_tree != 0)
+                    treeModel.reload();
+                else {
+             
+                    
+                    GrowTree();
+                    
+                }
+                    
+
+            }
+            catch(Exception ex){
+                System.err.println(ex);
+            }
+        }
+        
+    }
+
     //create the Random IP generator listener to generate random IP adresses.
     private class ButtonFieldListener implements ActionListener{
         @Override
@@ -121,18 +193,18 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
             try{
                 //create random IP 
                 int[] elements = new int[NUMBER_OF_ELEMENTS_IN_IP];
-                for(int k =0; k<NUMBER_OF_ELEMENTS_IN_IP - 1; k++){
-                    elements[k] = (int) (255*Math.random());
-                       //concatenate the numbers to get the final IP
+                for (int k = 0; k < NUMBER_OF_ELEMENTS_IN_IP - 1; k++) {
+                    elements[k] = (int) (255 * Math.random());
+                    //concatenate the numbers to get the final IP
                     IP += elements[k] + ".";
                 }
                 //add the last element to avoid getting "." at the end of the IP 
-                elements[NUMBER_OF_ELEMENTS_IN_IP-1] = (int) (255*Math.random());
-                IP +=   elements[NUMBER_OF_ELEMENTS_IN_IP-1];
-                
+                elements[NUMBER_OF_ELEMENTS_IN_IP - 1] = (int) (255 * Math.random());
+                IP += elements[NUMBER_OF_ELEMENTS_IN_IP - 1];
+
                 //test if IP was correctly generated
-                System.out.println("RANDOM IP IS: "+ IP);
-                
+                System.out.println("RANDOM IP IS: " + IP);
+               
                 //trace the graph
                 String cmdprevious = cmd;
                 cmd += " " + IP;
@@ -155,23 +227,52 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
                 if(number_tree != 0)
                     treeModel.reload();
                 else {
-                    tree = new JTree(treeModel);
-        JScrollPane treeView = new JScrollPane(tree);
-        windows.setLayout(new BorderLayout());
-        panel2.setSize(300,200);
-        panel2.add(treeView);
+                    GrowTree();;
+                    
+
+                }
+                    
+
+            }
+            catch(Exception ex){
+                System.err.println(ex);
+            }
+        }
         
-        windows.add(panel2, BorderLayout.CENTER);
-       windows.add(progressBar,BorderLayout.SOUTH);
-        windows.setSize(1000, 500);
-        //windows.setSize(600, 450);
-        windows.setTitle("Several IP traces");
-        windows.setVisible(true); // It is necessary to show the frame here!
-        windows.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        number_tree ++;
+    }
+    //create the Random IP generator listener to generate random IP adresses.
+    private class TextFieldLinuxListener implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e){
+            try{
+               
+                IP = tZone1.getText().trim();
+                System.out.println(IP);
+                //trace the graph
+                String cmdprevious = cmdLinux;
+                cmdLinux += " " + IP;
+
+                Runtime rt = Runtime.getRuntime();
+
+                Process proc = rt.exec(cmdLinux);
+                //clear the IP, set IP to a blank value in order to get other IP traces
+                IP = "";
+                cmdLinux = cmdprevious;
+                //increase progress bar value 
+                progressValue +=5;
+               progressBar.setValue(progressValue);
+                
+                BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+               
+                //parse output 
+                String[] check = parseOutput(stdInput);
+                
+                if(number_tree != 0)
+                    treeModel.reload();
+                else {
+                    GrowTree();;
                     
-                    
-                    
+  
                 }
                     
 
@@ -212,21 +313,6 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
                 if(number_tree != 0)
                     treeModel.reload();
                 else {
-                    tree = new JTree(treeModel);
-        JScrollPane treeView = new JScrollPane(tree);
-        windows.setLayout(new BorderLayout());
-        panel2.setSize(300,200);
-        panel2.add(treeView);
-        
-        windows.add(panel2, BorderLayout.CENTER);
-       windows.add(progressBar,BorderLayout.SOUTH);
-        windows.setSize(1000, 500);
-        //windows.setSize(600, 450);
-        windows.setTitle("Several IP traces");
-        windows.setVisible(true); // It is necessary to show the frame here!
-        windows.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        number_tree ++;
-                    
                     
                     
                 }
@@ -258,11 +344,10 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         
     }
 
-    private NetNode createNodes(NetNode top,String newNode) {
-        NetNode category = null;
-        category = new NetNode(newNode);
+    private DefaultMutableTreeNode createNodes(DefaultMutableTreeNode top,String newNode) {
+        DefaultMutableTreeNode category = null;
+        category = new DefaultMutableTreeNode(newNode);
         top.add(category);
-        
         return category;
 
     }
@@ -275,7 +360,7 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         String[] tokens = null;
         rootNode = tZone.getText();
         System.out.println("Root Node : "+rootNode);
-        NetNode top = new NetNode(rootNode);
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode(rootNode);
         
         treeModel.setRoot(top);
         try {
@@ -292,7 +377,8 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
                         
                         
                         IP = tokens[i];
-                        tab.add(tokens[i]);
+                        DefaultMutableTreeNode node = new DefaultMutableTreeNode(IP);
+                        tab.add(node);
                         System.out.println("IP : "+IP);
                         System.out.println("Nombre Arbre"+number_tree);
                         if(number_tree == 0){
@@ -319,23 +405,15 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         for(int j = 0;j<previous_length;j++){
             //System.out.println("Début de Recherche...");
             for(int k=previous_length;k<tab.size();k++){
-                if(tab.get(j).equals(tab.get(k))){
-                    
-                    NetNode ip = createNodes(top,tab.get(j));
-                    
+                if(tab.get(j).getUserObject().equals(tab.get(k).getUserObject()) ) {    
+                    top  = tab.get(k);
+                    //createNodes(tab.get(j),tab.get(k).getName());
                    
+   
+                }
+              
+                    createNodes(top,(String)tab.get(k).getUserObject());  
                     
-                    System.out.println("Meme adresse ip !");
-                   
-                     createNodes(ip,tab.get(j)+" = "+tab.get(k));
-                    //top = ip;
-                     //treeModel.setRoot(top);
-                }
-                else{
-                    System.out.println("Bingo!");
-                    createNodes(top,tab.get(k));    
-                }
-                
             }     
         }
        }

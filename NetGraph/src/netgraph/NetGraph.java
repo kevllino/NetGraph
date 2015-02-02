@@ -4,6 +4,7 @@
  */
 package netgraph;
 
+import javax.swing.JOptionPane;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -22,7 +23,6 @@ import netgraph.NetGraph;
 import javax.swing.JProgressBar;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.JOptionPane;
 
 public class NetGraph extends JFrame {
 
@@ -44,7 +44,7 @@ public class NetGraph extends JFrame {
     private JTextField tZone1 = new JTextField();
     private JTextField tZone2 = new JTextField();
     private JLabel enter = new JLabel("Fakeroute: ");
-    private JButton randomIP = new JButton("Random IP Generator");
+    private JButton randomIP = new JButton("Random IP Generator(Linux)");
     private JLabel winIP = new JLabel("Tracert");
     private JLabel linuxIP = new JLabel("Traceroute");
     private JButton exitButton = new JButton("Exit");
@@ -72,17 +72,16 @@ public class NetGraph extends JFrame {
     public static void main(String[] args) {
         //warning message
         //custom title, warning icon
-         JFrame frame = new JFrame();
-        JOptionPane.showMessageDialog(frame,"Change the fakeroute.jar absolute path before running the Fakeroute button!","Absolute path of fakeroute.jar",JOptionPane.WARNING_MESSAGE);
+        JFrame frame = new JFrame();
+        JOptionPane.showMessageDialog(frame, "Change the fakeroute.jar absolute path before running the Fakeroute button!", "Absolute path of fakeroute.jar", JOptionPane.WARNING_MESSAGE);
         // TODO code application logic here
         NetGraph test = new NetGraph();
 
     }
 
-    //grow the JTree by adding the children (IPs)
+    //Create et grow the JTree by adding the children (IPs)
     public void GrowTree() {
 
-        //windows.setLayout(new BorderLayout(2,1));
         tree = new JTree(treeModel);
 
         JScrollPane treeView = new JScrollPane(tree);
@@ -94,13 +93,13 @@ public class NetGraph extends JFrame {
         windows.setSize(600, 450);
         windows.setTitle("Several IP traces");
         expandAll(tree);
-        // windows.setLocationRelativeTo( null );
-        windows.setVisible(true); // It is necessary to show the frame here!
+        windows.setVisible(true);
         windows.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         number_tree++;
 
     }
 
+    //Show all the nodes in the JTree
     public void expandAll(JTree tree) {
         int row = 0;
         while (row < tree.getRowCount()) {
@@ -157,19 +156,19 @@ public class NetGraph extends JFrame {
 
     }
 
-    //create the Random IP generator listener to generate random IP adresses from tracert
+    //Trace the IP in Windows command
     private class TextFieldWinListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
 
-                IP = tZone2.getText().trim();
-                System.out.println(IP);
+                IP = tZone1.getText().trim();
+
                 //trace the graph
                 String cmdprevious = cmdWindows;
                 cmdWindows += " " + IP;
-
+                System.out.println("La commande Windows" + cmdWindows);
                 Runtime rt = Runtime.getRuntime();
 
                 Process proc = rt.exec(cmdWindows);
@@ -202,7 +201,7 @@ public class NetGraph extends JFrame {
 
     }
 
-    //create the Random IP generator listener to generate random IP adresses.
+    //create the Random IP generator listener to generate random IP adresses from traceroute
     private class ButtonFieldListener implements ActionListener {
 
         @Override
@@ -222,49 +221,6 @@ public class NetGraph extends JFrame {
                 //test if IP was correctly generated
                 System.out.println("RANDOM IP IS: " + IP);
 
-                //trace the graph
-                String cmdprevious = cmd;
-                cmd += " " + IP;
-
-                Runtime rt = Runtime.getRuntime();
-
-                Process proc = rt.exec(cmd);
-                //clear the IP, set IP to a blank value in order to get other IP traces
-                IP = "";
-                cmd = cmdprevious;
-                //increase progress bar value 
-                progressValue += 5;
-                progressBar.setValue(progressValue);
-
-                BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-
-                //parse output 
-                String[] check = parseOutput(stdInput);
-
-                if (number_tree != 0) {
-                    treeModel.reload();
-                    expandAll(tree);
-                } else {
-                    GrowTree();
-
-                }
-
-            } catch (Exception ex) {
-                System.err.println(ex);
-            }
-        }
-
-    }
-
-    //create the Random IP generator listener to generate random IP adresses.
-    private class TextFieldLinuxListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-
-                IP = tZone1.getText().trim();
-                System.out.println(IP);
                 //trace the graph
                 String cmdprevious = cmdLinux;
                 cmdLinux += " " + IP;
@@ -299,7 +255,50 @@ public class NetGraph extends JFrame {
 
     }
 
-    //create the TEextListener to launch/execute the tracert command
+    //Trace IP from Linux command
+    private class TextFieldLinuxListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+
+                IP = tZone2.getText().trim();
+
+                //trace the graph
+                String cmdprevious = cmdLinux;
+                cmdLinux += " " + IP;
+                System.out.println("La commande Linux" + cmdLinux);
+                Runtime rt = Runtime.getRuntime();
+
+                Process proc = rt.exec(cmdLinux);
+                //clear the IP, set IP to a blank value in order to get other IP traces
+                IP = "";
+                cmdLinux = cmdprevious;
+                //increase progress bar value 
+                progressValue += 5;
+                progressBar.setValue(progressValue);
+
+                BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+                //parse output 
+                String[] check = parseOutput(stdInput);
+
+                if (number_tree != 0) {
+                    treeModel.reload();
+                    expandAll(tree);
+                } else {
+                    GrowTree();
+
+                }
+
+            } catch (Exception ex) {
+                System.err.println(ex);
+            }
+        }
+
+    }
+
+    //create the TextListener to launch/execute the fakeroute command
     private class TextFieldListener implements ActionListener {
 
         @Override
@@ -328,7 +327,7 @@ public class NetGraph extends JFrame {
                     treeModel.reload();
                     expandAll(tree);
                 } else {
-                       GrowTree();
+                    GrowTree();
                 }
 
                 String s = null;
@@ -344,7 +343,7 @@ public class NetGraph extends JFrame {
 
     }
 
-    //create the Random IP generator listener to generate random IP adresses.
+    //Exit the application
     private class ExitFieldListener implements ActionListener {
 
         @Override
@@ -359,6 +358,7 @@ public class NetGraph extends JFrame {
 
     }
 
+    //create Node from a parent
     private DefaultMutableTreeNode createNodes(DefaultMutableTreeNode top, String newNode) {
         DefaultMutableTreeNode category = null;
         category = new DefaultMutableTreeNode(newNode);
@@ -367,6 +367,7 @@ public class NetGraph extends JFrame {
 
     }
 
+    //Extract the ip adresses && create nodes and branches in the tree
     public String[] parseOutput(BufferedReader stdInput) {
 
         previous_length = tab.size();
@@ -381,33 +382,30 @@ public class NetGraph extends JFrame {
             treeModel.setRoot(top);
         }
 
-        System.out.println("top :" + top.getUserObject());
-
         try {
-            //read each line
+            //read each line of the output command
             while ((s = stdInput.readLine()) != null) {
                 //split each line into words
                 tokens = s.split(" ");
-                System.out.println("La taille de tokens vaut " + tokens.length);
-                for (int i = 0; i < tokens.length; i++) {
-                    //System.out.print(tokens[i] + " ");
 
+                for (int i = 0; i < tokens.length; i++) {
+
+                    //extract ip adresses in variable
                     if (tokens[i].matches(IPADDRESS_PATTERN)) {
 
                         IP = tokens[i];
                         DefaultMutableTreeNode no = new DefaultMutableTreeNode(IP);
                         tab.add(no);
                         System.out.println("IP : " + IP);
-                        System.out.println("Nombre Arbre" + number_tree);
-
-                    } else {/* System.out.println("Erreur!");*/
 
                     }
 
                 }
             }
+
+            //We create the first branch
             if (number_tree == 0) {
-                System.out.println("1er Arbre");
+
                 for (int i = 0; i < tab.size(); i++) {
                     if (i == 0) {
                         top.add(tab.get(i));
@@ -418,43 +416,36 @@ public class NetGraph extends JFrame {
                     }
 
                 }
-
+                //We create the other branches
             } else if (number_tree != 0) {
                 DefaultMutableTreeNode ip = null;
                 int n = 0;
-                System.out.println("Taille précédente de la table de noeuds : " + previous_length);
-                System.out.println("Voici le tableau de noeuds");
-                for (int i = 0; i < tab.size(); i++) {
-                    System.out.println(tab.get(i).getUserObject());
-                }
 
-                System.out.println("Le tab suivant a pour length : " + (tab.size() - previous_length));
-                //System.out.println("Recherche...");
                 for (int j = 0; j < previous_length; j++) {
-                    //System.out.println("Début de Recherche...");
+
                     for (int k = previous_length; k < tab.size(); k++) {
 
                         if (tab.get(j).getUserObject().equals(tab.get(k).getUserObject())) {
 
                             n = k;
                             ip = tab.get(j);
-                            top.add(ip);
+                            
 
-                          
-                        } else {
-
-                         
                         }
 
                     }
 
                 }
+
                 for (int l = previous_length; l < tab.size(); l++) {
-                    if (ip != null) {
-                        System.out.println("Adresse ip commune");
-                        createNodes(ip, (String) tab.get(l).getUserObject() + "IP Fils n° " + l);
-                    } else if (l != n) {
-                        createNodes(top, (String) tab.get(l).getUserObject() + "Fils n° " + l);
+                    if (ip != null && l != (tab.size() - 1)) {
+                     
+                        ip.add(tab.get(l));
+                        tab.get(l).add(tab.get(l + 1));
+
+                    } else if (l != n && l != (tab.size() - 1) && ip == null) {
+                        top.add(tab.get(l));
+                        tab.get(l).add(tab.get(l + 1));
                     }
                 }
 

@@ -22,6 +22,7 @@ import netgraph.NetGraph;
 import javax.swing.JProgressBar;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.JOptionPane;
 
 public class NetGraph extends JFrame {
 
@@ -42,7 +43,7 @@ public class NetGraph extends JFrame {
     private JTextField tZone = new JTextField();
     private JTextField tZone1 = new JTextField();
     private JTextField tZone2 = new JTextField();
-    private JLabel enter = new JLabel("Enter IP or DN: ");
+    private JLabel enter = new JLabel("Fakeroute: ");
     private JButton randomIP = new JButton("Random IP Generator");
     private JLabel winIP = new JLabel("Tracert");
     private JLabel linuxIP = new JLabel("Traceroute");
@@ -69,6 +70,10 @@ public class NetGraph extends JFrame {
 
     //main function where we call the graph constructor
     public static void main(String[] args) {
+        //warning message
+        //custom title, warning icon
+         JFrame frame = new JFrame();
+        JOptionPane.showMessageDialog(frame,"Change the fakeroute.jar absolute path before running the Fakeroute button!","Absolute path of fakeroute.jar",JOptionPane.WARNING_MESSAGE);
         // TODO code application logic here
         NetGraph test = new NetGraph();
 
@@ -240,7 +245,7 @@ public class NetGraph extends JFrame {
                     treeModel.reload();
                     expandAll(tree);
                 } else {
-                    GrowTree();;
+                    GrowTree();
 
                 }
 
@@ -281,8 +286,9 @@ public class NetGraph extends JFrame {
 
                 if (number_tree != 0) {
                     treeModel.reload();
+                    expandAll(tree);
                 } else {
-                    GrowTree();;
+                    GrowTree();
 
                 }
 
@@ -320,8 +326,9 @@ public class NetGraph extends JFrame {
 
                 if (number_tree != 0) {
                     treeModel.reload();
+                    expandAll(tree);
                 } else {
-
+                       GrowTree();
                 }
 
                 String s = null;
@@ -433,15 +440,10 @@ public class NetGraph extends JFrame {
                             ip = tab.get(j);
                             top.add(ip);
 
-                            System.out.println("Meme adresse ip !");
-
-                            //createNodes(ip,tab.get(j)+" = "+tab.get(k));
-                            //top = ip;
-                            //treeModel.setRoot(top);
+                          
                         } else {
 
-                            System.out.println("Bingo!");
-                            //createNodes(top,(String) tab.get(k).getUserObject());    
+                         
                         }
 
                     }

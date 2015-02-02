@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
+//import javax.swing.tree.NetNode;
 import netgraph.NetGraph;
 import javax.swing.JProgressBar;
 import javax.swing.tree.DefaultTreeModel;
@@ -36,7 +36,7 @@ public class NetGraph extends JFrame {
 private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
     private static int number_tree = 0 ; 
     private static int previous_length = 0 ;
-    private static ArrayList<String> tab = new ArrayList<String>();       
+    private static ArrayList<NetNode> tab = new ArrayList<NetNode>();       
     private JTree tree;
     private JTextField tZone = new JTextField();
     private JLabel label = new JLabel("Enter IP or Domain Name: ");
@@ -258,9 +258,9 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         
     }
 
-    private DefaultMutableTreeNode createNodes(DefaultMutableTreeNode top,String newNode) {
-        DefaultMutableTreeNode category = null;
-        category = new DefaultMutableTreeNode(newNode);
+    private NetNode createNodes(NetNode top,String newNode) {
+        NetNode category = null;
+        category = new NetNode(newNode);
         top.add(category);
         
         return category;
@@ -275,7 +275,7 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         String[] tokens = null;
         rootNode = tZone.getText();
         System.out.println("Root Node : "+rootNode);
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode(rootNode);
+        NetNode top = new NetNode(rootNode);
         
         treeModel.setRoot(top);
         try {
@@ -321,7 +321,7 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
             for(int k=previous_length;k<tab.size();k++){
                 if(tab.get(j).equals(tab.get(k))){
                     
-                    DefaultMutableTreeNode ip = createNodes(top,tab.get(j));
+                    NetNode ip = createNodes(top,tab.get(j));
                     
                    
                     

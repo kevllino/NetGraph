@@ -52,7 +52,7 @@ public class NetGraph extends JFrame {
     private JPanel jta = new JPanel();
     private String IP = "";
     //command to get a tracert output
-    private String cmd = "java -jar C:\\Users\\Armand\\Documents\\NetBeansProjects\\NetGraph1\\NetGraph\\fakeroute.jar  ";
+    private String cmd = "java -jar C:\\Users\\Kevin\\Downloads\\fakeroute.jar  ";
     private String cmdWindows = "tracert -d ";
     private String cmdLinux = "traceroute -n ";
     //private String cmd = "tracert -d";

@@ -11,6 +11,7 @@ import java.io.IOException;
 import javax.swing.*;
 import java.lang.*;
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import netgraph.NetGraph;
 import javax.swing.JProgressBar;
+import javax.swing.tree.DefaultTreeModel;
 
 public class NetGraph extends JFrame {
 
@@ -32,7 +34,9 @@ public class NetGraph extends JFrame {
 "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
 //number of element in an IP address
 private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
-      
+    private static int number_tree = 0 ; 
+    private static int previous_length = 0 ;
+    private static ArrayList<String> tab = new ArrayList<String>();       
     private JTree tree;
     private JTextField tZone = new JTextField();
     private JLabel label = new JLabel("Enter IP or Domain Name: ");
@@ -42,18 +46,21 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
     private JPanel jta = new JPanel();
     private String IP = "";
     //command to get a tracert output
-    private String cmd = "java -jar C:\\Users\\Kevin\\Downloads\\fakeroute.jar  ";
+    private String cmd = "java -jar C:\\Users\\Armand\\Documents\\NetBeansProjects\\NetGraph1\\NetGraph\\fakeroute.jar  ";
+    //private String cmd = "tracert -d";
     private String rootNode;
     //add IPs  to:
     private JFrame windows = new JFrame();   
     private JPanel panel2 = new JPanel();
     private int progressValue = 0;
     JProgressBar progressBar = new JProgressBar(0,100);
+    DefaultTreeModel treeModel = new DefaultTreeModel(null);
 
     //main function where we call the graph constructor
     public static void main(String[] args) {
         // TODO code application logic here
-        new NetGraph();
+        NetGraph test = new NetGraph();
+        
     }
     
     //create a frame with gridlayout
@@ -144,6 +151,29 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
                
                 //parse output 
                 String[] check = parseOutput(stdInput);
+                
+                if(number_tree != 0)
+                    treeModel.reload();
+                else {
+                    tree = new JTree(treeModel);
+        JScrollPane treeView = new JScrollPane(tree);
+        windows.setLayout(new BorderLayout());
+        panel2.setSize(300,200);
+        panel2.add(treeView);
+        
+        windows.add(panel2, BorderLayout.CENTER);
+       windows.add(progressBar,BorderLayout.SOUTH);
+        windows.setSize(1000, 500);
+        //windows.setSize(600, 450);
+        windows.setTitle("Several IP traces");
+        windows.setVisible(true); // It is necessary to show the frame here!
+        windows.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        number_tree ++;
+                    
+                    
+                    
+                }
+                    
 
             }
             catch(Exception ex){
@@ -178,6 +208,28 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
                
                 //parse output 
                 String[] check = parseOutput(stdInput);
+                
+                if(number_tree != 0)
+                    treeModel.reload();
+                else {
+                    tree = new JTree(treeModel);
+        JScrollPane treeView = new JScrollPane(tree);
+        windows.setLayout(new BorderLayout());
+        panel2.setSize(300,200);
+        panel2.add(treeView);
+        
+        windows.add(panel2, BorderLayout.CENTER);
+       windows.add(progressBar,BorderLayout.SOUTH);
+        windows.setSize(1000, 500);
+        //windows.setSize(600, 450);
+        windows.setTitle("Several IP traces");
+        windows.setVisible(true); // It is necessary to show the frame here!
+        windows.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        number_tree ++;
+                    
+                    
+                    
+                }
 
                 String s = null;
                 while ((s = stdInput.readLine()) != null) {
@@ -206,56 +258,87 @@ private static final int NUMBER_OF_ELEMENTS_IN_IP = 4;
         
     }
 
-    private void createNodes(DefaultMutableTreeNode top,String newNode) {
+    private DefaultMutableTreeNode createNodes(DefaultMutableTreeNode top,String newNode) {
         DefaultMutableTreeNode category = null;
         category = new DefaultMutableTreeNode(newNode);
         top.add(category);
+        
+        return category;
 
     }
 
     public String[] parseOutput(BufferedReader stdInput) {
         
+        previous_length = tab.size();
         String IP = "no ip";
         String s, s1 = null;
         String[] tokens = null;
         rootNode = tZone.getText();
         System.out.println("Root Node : "+rootNode);
         DefaultMutableTreeNode top = new DefaultMutableTreeNode(rootNode);
+        
+        treeModel.setRoot(top);
         try {
             //read each line
             while ((s = stdInput.readLine()) != null) {
                 //split each line into words
                 tokens = s.split(" ");
+                System.out.println("La taille de tokens vaut "+tokens.length);
                 for (int i = 0; i < tokens.length; i++) {
                     //System.out.print(tokens[i] + " ");
                     
                    
                     if (tokens[i].matches(IPADDRESS_PATTERN)) {
+                        
+                        
                         IP = tokens[i];
+                        tab.add(tokens[i]);
                         System.out.println("IP : "+IP);
+                        System.out.println("Nombre Arbre"+number_tree);
+                        if(number_tree == 0){
+                        System.out.println("1er Arbre");    
                         createNodes(top,IP);
+                        }
+                        
+                        
+                        
+                        
 
                     } else {/* System.out.println("Erreur!");*/}
 
                 }
             }
-         
-         
         
-          
-        tree = new JTree(top);
-        JScrollPane treeView = new JScrollPane(tree);
-        windows.setLayout(new BorderLayout());
-        panel2.setSize(300,200);
-        panel2.add(treeView);
-        
-        windows.add(panel2, BorderLayout.CENTER);
-       windows.add(progressBar,BorderLayout.SOUTH);
-        windows.setSize(1000, 500);
-        //windows.setSize(600, 450);
-        windows.setTitle("Several IP traces");
-        windows.setVisible(true); // It is necessary to show the frame here!
-        windows.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        if(number_tree != 0)    {
+            System.out.println("Taille précédente de la table de noeuds : "+previous_length);
+            System.out.println("Voici le tableau de noeuds");
+            for(int i =0;i<tab.size();i++)
+                System.out.println(tab.get(i));
+               
+            //System.out.println("Recherche...");
+        for(int j = 0;j<previous_length;j++){
+            //System.out.println("Début de Recherche...");
+            for(int k=previous_length;k<tab.size();k++){
+                if(tab.get(j).equals(tab.get(k))){
+                    
+                    DefaultMutableTreeNode ip = createNodes(top,tab.get(j));
+                    
+                   
+                    
+                    System.out.println("Meme adresse ip !");
+                   
+                     createNodes(ip,tab.get(j)+" = "+tab.get(k));
+                    //top = ip;
+                     //treeModel.setRoot(top);
+                }
+                else{
+                    System.out.println("Bingo!");
+                    createNodes(top,tab.get(k));    
+                }
+                
+            }     
+        }
+       }
         
         } catch (Exception e) {
             System.err.println(e);
